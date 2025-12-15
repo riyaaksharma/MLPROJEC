@@ -35,7 +35,7 @@ class ModelTrainer:
             logging.info("Splitting training and testing input data")
 
             # Split features and target
-            X_train, y_train, X_test, y_test = (
+            X_train,y_train,X_test, y_test = (
                 train_array[:, :-1],
                 train_array[:, -1],
                 test_array[:, :-1],
@@ -49,10 +49,45 @@ class ModelTrainer:
                 "Gradient Boosting": GradientBoostingRegressor(),
                 "Linear Regression": LinearRegression(),
                 "K Neighbors Regressor": KNeighborsRegressor(),
-                "XGB Regressor": XGBRegressor(),
-                "CatBoost Regressor": CatBoostRegressor(verbose=False),
-                "AdaBoost Regressor": AdaBoostRegressor()
+                "XGBoost": XGBRegressor(),
+                "CatBoost": CatBoostRegressor(verbose=False),
+                "AdaBoost": AdaBoostRegressor()
             }
+
+
+            params = {
+                        "Random Forest": {
+                            "n_estimators": [50, 100],
+                            "max_depth": [None, 10]
+                        },
+
+                        "Decision Tree": {
+                            "max_depth": [None, 5, 10]
+                        },
+
+                        "Gradient Boosting": {
+                            "n_estimators": [50, 100]
+                        },
+
+                        "Linear Regression": {},
+
+                        "K Neighbors Regressor": {
+                            "n_neighbors": [3, 5, 7]
+                        },
+
+                        "XGBoost": {
+                            "n_estimators": [50, 100]
+                        },
+
+                        "CatBoost": {
+                            "depth": [6, 8]
+                        },
+
+                        "AdaBoost": {
+                            "n_estimators": [50, 100]
+                        }
+                    }
+
 
             # Evaluate all models
             model_report: dict = evaluate_models(
@@ -60,7 +95,8 @@ class ModelTrainer:
                 y_train=y_train,
                 X_test=X_test,
                 y_test=y_test,
-                models=models
+                models=models,
+                params=params
             )
 
             # Get best model score
