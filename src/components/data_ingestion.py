@@ -10,6 +10,9 @@ from dataclasses import dataclass
 from src.components.data_transformation import DataTransformation
 from src.components.data_transformation import DataTransformationConfig
 
+from src.components.model_trainer import ModelTrainingConfig
+from src.components.model_trainer import ModelTrainer 
+
 
 #whnever we are performng data indegstion component there should be some inputs(where to save train data,test data etc) that probably required by the data indestion component so for those inputs we need to create another class :
 @dataclass
@@ -24,13 +27,14 @@ class DataIngestion:
         #all those 3 paths will get saved inside the variable(indegstion_config)
         self.ingestion_config=DataIngestionConfig()
         #if ur data is stored in some db we will write some code here to read databases(for that  we basically create mondoDb client etc)
+
     def initiate_data_ingestion(self):
         logging.info("Entered the data indegestion component or method")
         try:
-            df=pd.read_csv('notebook(1)\data(1)\stud.csv')
+            df = pd.read_csv('notebook(1)/data(1)/stud.csv')
+
             logging.info("Read the dataset as dataframe")
             
-
             #It creates the folder where the train, test, and raw data files will be saved.
             #If the folder already exists, it does NOT throw an error.
             os.makedirs(os.path.dirname(self.ingestion_config.train_data_path),exist_ok=True)
@@ -41,29 +45,36 @@ class DataIngestion:
             #test_size=0.2 → 20% data for testing, 80% for training
             #random_state=42 → ensures same split every time (reproducibility)
             train_set,test_set=train_test_split(df,test_size=0.2,random_state=42)
+
             #Saves the training dataset as a CSV file
             train_set.to_csv(self.ingestion_config.train_data_path,index=False,header=True)
             test_set.to_csv(self.ingestion_config.test_data_path,index=False,header=True)
 
             logging.info("Ingestion of the data is completed")
+
             #This allows the next pipeline stage(i.e. data transformation) to know where the files are saved.
             return (
                 self.ingestion_config.train_data_path,
                 self.ingestion_config.test_data_path
-)
+            )
 
-        
         except Exception as e:
             raise CustomException(e,sys)
 
 
-
-
 if __name__=="__main__":
-    obj=DataIngestion()
+    obj = DataIngestion()
+
+    # FIXED spelling mistake
     train_data,test_data=obj.initiate_data_ingestion()
 
     data_transformation=DataTransformation()
-    data_transformation.initiate_data_transformation(train_data,test_data)
 
+    # FIXED unpacking (3 values returned)
+    train_arr,test_arr,_=data_transformation.initiate_data_transformation(
+        train_data,
+        test_data
+    )
 
+    modeltrainer=ModelTrainer()
+    print(modeltrainer.initiate_model_trainer(train_arr,test_arr))

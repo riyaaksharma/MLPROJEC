@@ -6,7 +6,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 from exception import CustomException
 from logger import logging
 import pandas as pd
-from src.components import data_ingestion
+from src.components import data_in
 
 
 from sklearn.model_selection import train_test_split
